@@ -52,6 +52,10 @@ export default function Home() {
     router.push(`/shop?category=${encodeURIComponent(category)}`);
   };
 
+  const focusShopSearch = () => {
+    router.push("/shop?focus=search");
+  };
+
   const total = cart.reduce((sum, item) => sum + item.price, 0);
   const promotion = promotions[activePromotion];
   const structuredData = {
@@ -80,7 +84,7 @@ export default function Home() {
           <a href="#why-us">Why us</a>
         </nav>
         <div className="top-actions">
-          <button className="icon-button" aria-label="Focus product search" onClick={() => document.querySelector<HTMLInputElement>("#product-search")?.focus()}>⌕</button>
+          <button className="icon-button" aria-label="Focus product search" onClick={focusShopSearch}>⌕</button>
           <button className="theme-button" aria-label={`Switch to ${theme === "dark" ? "light" : "dark"} mode`} onClick={() => setTheme(theme === "dark" ? "light" : "dark")}><span>{theme === "dark" ? "☼" : "☾"}</span><small>{theme === "dark" ? "Light" : "Dark"}</small></button>
           <button className="cart-button" onClick={() => setCartOpen(true)}>Cart <span className="cart-count">{cart.length}</span></button>
         </div>

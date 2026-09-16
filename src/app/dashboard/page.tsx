@@ -14,7 +14,7 @@ import {
   Truck,
   X,
 } from "lucide-react";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, useSyncExternalStore } from "react";
 import {
   catalogStorageKey,
   deliveryStatuses,
@@ -65,10 +65,14 @@ function readOrders() {
 }
 
 export default function DashboardPage() {
+  const authorized = useSyncExternalStore(
+    () => () => {},
+    () => window.localStorage.getItem("mustafa-admin-session") === "true",
+    () => false,
+  );
   useEffect(() => {
-    if (window.localStorage.getItem("mustafa-admin-session") !== "true")
-      window.location.replace("/admin");
-  }, []);
+    if (!authorized) window.location.replace("/admin");
+  }, [authorized]);
   const [tab, setTab] = useState<DashboardTab>("overview");
   const [catalog, setCatalog] = useState<Product[]>(readProducts);
   const [orders, setOrders] = useState<Order[]>(readOrders);
@@ -99,6 +103,8 @@ export default function DashboardPage() {
   const pendingOrders = orders.filter(
     (order) => order.status === "Pending",
   ).length;
+
+  if (!authorized) return null;
 
   const openNewProduct = () => {
     setEditingId(null);

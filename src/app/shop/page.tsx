@@ -2,12 +2,13 @@
 
 import Link from "next/link";
 import { ArrowLeft, Headphones, House, Keyboard, Laptop, Package, Search, SlidersHorizontal, Tv, type LucideIcon } from "lucide-react";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { catalogStorageKey, products, type Product } from "@/lib/catalog";
-import { productCategories } from "@/lib/categories";
+import { productCategories as catalogCategories } from "@/lib/categories";
 import "./shop.css";
 
 const categoryIcons: Record<string, LucideIcon> = { Audio: Headphones, Computers: Laptop, Accessories: Keyboard, "Smart home": House, "LED TVs": Tv, "LED TVs & Television Accessories": Tv };
+const productCategories = Array.from(new Set([...products.map((product) => product.category), ...catalogCategories]));
 
 function readProducts(): Product[] {
   if (typeof window === "undefined") return products;
@@ -18,10 +19,18 @@ function readProducts(): Product[] {
 
 export default function ShopPage() {
   const [catalog] = useState<Product[]>(readProducts);
-  const [category, setCategory] = useState("All");
+  const [category, setCategory] = useState(() => {
+    if (typeof window === "undefined") return "All";
+    const requestedCategory = new URLSearchParams(window.location.search).get("category");
+    return requestedCategory && productCategories.includes(requestedCategory) ? requestedCategory : "All";
+  });
   const [search, setSearch] = useState("");
   const [sort, setSort] = useState("featured");
   const [onlySale, setOnlySale] = useState(false);
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    if (params.get("focus") === "search") document.querySelector<HTMLInputElement>('input[placeholder="Search products, specs, categories"]')?.focus();
+  }, []);
 
   const visibleProducts = useMemo(() => {
     const filtered = catalog.filter((product) => {
